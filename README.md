@@ -114,6 +114,8 @@ Bluetooth discovery and automatic connection are performed locally through Windo
 
 ## Build from source
 
+See [Build requirements](BUILD-REQUIREMENTS.md) for the required tools, version checks, and download links.
+
 Build and package the Windows x64 applications and MSI from the repository root using PowerShell:
 
 ```powershell
