@@ -65,6 +65,8 @@
       <Directory Id="AppMenuFolder" Name="Bluetooth Auto Connect" />
     </StandardDirectory>
 
+    <StandardDirectory Id="DesktopFolder" />
+
     <StandardDirectory Id="CommonAppDataFolder">
       <Directory Id="CommonAppDataManufacturerFolder" Name="BlueToothAutoConnect" />
     </StandardDirectory>
@@ -87,10 +89,38 @@
                   Target="[UserAgentFolder]BlueToothAutoConnect.UserAgent.exe"
                   WorkingDirectory="UserAgentFolder"
                   Icon="AppIcon.ico" />
+        <Shortcut Id="AgentBackgroundStartMenuShortcut"
+                  Name="Bluetooth Auto Connect (Background)"
+                  Description="Start Bluetooth Auto Connect in the notification area"
+                  Target="[UserAgentFolder]BlueToothAutoConnect.UserAgent.exe"
+                  Arguments="--background"
+                  WorkingDirectory="UserAgentFolder"
+                  Icon="AppIcon.ico" />
         <RegistryValue
           Root="HKCU"
           Key="Software\BlueToothAutoConnect"
           Name="StartMenuInstalled"
+          Value="1"
+          Type="integer"
+          KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="CG_DesktopShortcut" Directory="DesktopFolder">
+      <Component Id="C_DesktopShortcut"
+                 Guid="D8E9F0A1-B2C3-4D5E-8F7A-9B0C1D2E3F4A"
+                 Bitness="always64"
+                 Condition="CREATE_DESKTOP_SHORTCUT = &quot;1&quot;">
+        <Shortcut Id="AgentDesktopShortcut"
+                  Name="Bluetooth Auto Connect"
+                  Description="Manage trusted Bluetooth devices and monitor connection status"
+                  Target="[UserAgentFolder]BlueToothAutoConnect.UserAgent.exe"
+                  WorkingDirectory="UserAgentFolder"
+                  Icon="AppIcon.ico" />
+        <RegistryValue
+          Root="HKLM"
+          Key="SOFTWARE\BlueToothAutoConnect\Installer"
+          Name="DesktopShortcutInstalled"
           Value="1"
           Type="integer"
           KeyPath="yes" />
@@ -104,7 +134,8 @@
     <Property Id="ARPHELPLINK"     Value="https://github.com/BlueToothAutoConnect" />
 
     <!-- ── Installer UI ─────────────────────────────────────────── -->
-    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+    <Property Id="CREATE_DESKTOP_SHORTCUT" Value="0" Secure="yes" />
+    <ui:WixUI Id="WixUI_InstallDir_Custom" InstallDirectory="INSTALLFOLDER" />
     <WixVariable Id="WixUILicenseRtf" Value="Assets\License.rtf" />
 
     <!-- ── Features ─────────────────────────────────────────────── -->
@@ -134,6 +165,7 @@
         <ComponentGroupRef Id="CG_UserAgentCli" />
         <ComponentGroupRef Id="CG_UserAgentCliHarvested" />
         <ComponentGroupRef Id="CG_Shortcuts" />
+        <ComponentGroupRef Id="CG_DesktopShortcut" />
         <ComponentGroupRef Id="CG_AutoStart" />
       </Feature>
 

@@ -18,13 +18,14 @@ public sealed partial class MainWindow : Window
     private readonly SystemTrayIcon _systemTrayIcon;
     private bool _isExiting;
 
-    public MainWindow()
+    public MainWindow(bool startInBackground = false)
     {
         InitializeComponent();
 
         Title = "Bluetooth Auto Connect";
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1100, 720));
-        AppWindow.Show(true);
+        if (!startInBackground)
+            AppWindow.Show();
 
         try
         {

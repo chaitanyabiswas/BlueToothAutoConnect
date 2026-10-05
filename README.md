@@ -38,7 +38,7 @@ $msi = ".\publish\Installer\BlueToothAutoConnect-$version-Setup.msi"
 Start-Process msiexec.exe -ArgumentList "/i `"$msi`"" -Verb RunAs
 ```
 
-Follow the setup wizard and accept the MIT license. Installation adds the application to the Start menu and registers it to start when you sign in.
+Follow the setup wizard and accept the MIT license. On the installation-folder page, select **Create a Desktop shortcut** if you want a Desktop shortcut. Installation also adds normal and background-mode shortcuts to the Start menu, and registers the agent to start in the notification area when you sign in.
 
 The default installation location is:
 
@@ -62,6 +62,7 @@ Select **Trust** on a discovered device to choose which identifying criteria to 
 
 - Minimizing the window hides it and shows a notification that the app is still running in the background.
 - Clicking the window’s **X** also hides it rather than exiting.
+- The installed app starts hidden in the notification area when you sign in to Windows.
 - Double-click the Bluetooth Auto Connect notification-area icon to reopen the window.
 - Right-click the icon and choose **Exit** to close the app.
 - When a whitelisted device connects or disconnects, the app displays a Windows notification with the device name.

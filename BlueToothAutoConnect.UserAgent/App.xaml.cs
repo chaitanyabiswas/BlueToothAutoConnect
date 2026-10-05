@@ -80,7 +80,13 @@ public partial class App : Application
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         _ = InitializeDatabaseAsync();
-        EnsureWindowCreated();
+        var startInBackground =
+            args.Arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Contains("--background", StringComparer.OrdinalIgnoreCase) ||
+            Environment.GetCommandLineArgs()
+                .Skip(1)
+                .Contains("--background", StringComparer.OrdinalIgnoreCase);
+        EnsureWindowCreated(startInBackground);
     }
 
     public static Task InitializeDatabaseAsync()
@@ -136,14 +142,15 @@ public partial class App : Application
         }
     }
 
-    public void EnsureWindowCreated()
+    public void EnsureWindowCreated(bool startInBackground = false)
     {
         if (_window == null)
         {
             try
             {
-                _window = new MainWindow();
-                _window.Activate();
+                _window = new MainWindow(startInBackground);
+                if (!startInBackground)
+                    _window.Activate();
             }
             catch (Exception ex)
             {
