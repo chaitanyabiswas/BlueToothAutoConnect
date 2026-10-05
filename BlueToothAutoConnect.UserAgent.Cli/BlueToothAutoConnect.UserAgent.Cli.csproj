@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>BlueToothAutoConnect_UserAgent_Cli</RootNamespace>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Company>Chaitanya Biswas</Company>
+    <Copyright>Copyright (c) 2026 Chaitanya Biswas</Copyright>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <PublishTrimmed>false</PublishTrimmed>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\AppIcon.ico"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="..\BlueToothAutoConnect.UserAgent\Assets\BlueToothAutoConnect-logo.svg"
+             Link="Assets\BlueToothAutoConnect-logo.svg"
+             CopyToPublishDirectory="PreserveNewest" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BlueToothAutoConnect.AgentCore\BlueToothAutoConnect.AgentCore.csproj" />
+    <ProjectReference Include="..\BlueToothAutoConnect.PolicyEngine\BlueToothAutoConnect.PolicyEngine.csproj" />
+    <ProjectReference Include="..\BlueToothAutoConnect.Persistence\BlueToothAutoConnect.Persistence.csproj" />
+  </ItemGroup>
+</Project>

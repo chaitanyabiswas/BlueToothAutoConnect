@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  WiX v4 installer project for BlueToothAutoConnect.
+
+  DO NOT build this project directly — use the build-installer.ps1 script,
+  which publishes the .NET projects, generates the harvest WXS fragments, and
+  then calls dotnet build on this project.
+
+  Manual build (after running publish and harvest steps):
+    dotnet build BlueToothAutoConnect.Installer.wixproj -c Release
+-->
+<Project Sdk="WixToolset.Sdk/4.0.5">
+
+  <PropertyGroup>
+    <ProductVersion Condition="'$(ProductVersion)' == ''">1.0.0</ProductVersion>
+    <OutputName>BlueToothAutoConnect-$(ProductVersion)-Setup</OutputName>
+    <OutputPath>$(MSBuildThisFileDirectory)..\publish\Installer\</OutputPath>
+
+    <!-- x64 package to match the self-contained win-x64 publish outputs -->
+    <InstallerPlatform>x64</InstallerPlatform>
+
+    <!-- Disable the default *.wxs glob — we list files explicitly so the
+         generated harvest fragments are opt-in, not auto-included. -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DefineConstants>ProductVersion=$(ProductVersion)</DefineConstants>
+
+    <!-- Suppress ICE rules that trip on self-contained .NET runtimes -->
+    <SuppressIces>ICE38;ICE61;ICE64;ICE69;ICE91</SuppressIces>
+    <!-- Suppress all ICE validation if Windows Installer service unavailable in build env -->
+    <SuppressValidation>true</SuppressValidation>
+  </PropertyGroup>
+
+  <!-- Core WXS source files -->
+  <ItemGroup>
+    <Compile Include="Product.wxs" />
+    <Compile Include="UserAgentAutoStart.wxs" />
+  </ItemGroup>
+
+  <!-- Generated fragments (created by build-installer.ps1) -->
+  <ItemGroup>
+    <Compile Include="HostKeyFiles.wxs"     Condition="Exists('HostKeyFiles.wxs')" />
+    <Compile Include="AgentKeyFiles.wxs"    Condition="Exists('AgentKeyFiles.wxs')" />
+    <Compile Include="AgentCliKeyFiles.wxs" Condition="Exists('AgentCliKeyFiles.wxs')" />
+    <Compile Include="HostHarvest.wxs"      Condition="Exists('HostHarvest.wxs')" />
+    <Compile Include="AgentHarvest.wxs"     Condition="Exists('AgentHarvest.wxs')" />
+    <Compile Include="AgentCliHarvest.wxs"  Condition="Exists('AgentCliHarvest.wxs')" />
+  </ItemGroup>
+
+  <!-- WiX extensions as NuGet package references (required for dotnet build) -->
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Util.wixext" Version="4.0.5" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="4.0.5" />
+  </ItemGroup>
+
+</Project>

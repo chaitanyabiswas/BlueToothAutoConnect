@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-BlueToothAutoConnect.PrivilegedHost-6ca24e47-a23f-4850-b3b3-1be6f218601e</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BlueToothAutoConnect.PolicyEngine\BlueToothAutoConnect.PolicyEngine.csproj" />
+    <ProjectReference Include="..\BlueToothAutoConnect.Persistence\BlueToothAutoConnect.Persistence.csproj" />
+  </ItemGroup>
+
+</Project>

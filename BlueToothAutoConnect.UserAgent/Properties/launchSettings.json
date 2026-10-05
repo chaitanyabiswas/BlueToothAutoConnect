@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "BlueToothAutoConnect.UserAgent (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "BlueToothAutoConnect.UserAgent (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
