@@ -22,7 +22,7 @@
     <!-- Disable the default *.wxs glob — we list files explicitly so the
          generated harvest fragments are opt-in, not auto-included. -->
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <DefineConstants>ProductVersion=$(ProductVersion)</DefineConstants>
+    <DefineConstants>ProductVersion=$(ProductVersion);HostPublishDir=$(HostPublishDir);AgentPublishDir=$(AgentPublishDir);AgentCliPublishDir=$(AgentCliPublishDir)</DefineConstants>
 
     <!-- Suppress ICE rules that trip on self-contained .NET runtimes -->
     <SuppressIces>ICE38;ICE61;ICE64;ICE69;ICE91</SuppressIces>

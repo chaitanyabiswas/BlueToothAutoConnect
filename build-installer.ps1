@@ -7,7 +7,7 @@
     1. Publishes PrivilegedHost (win-x64 self-contained) → publish\PrivilegedHost\
     2. Publishes UserAgent     (win-x64 self-contained) → publish\UserAgent\
     3. Publishes UserAgentCli  (win-x64 self-contained) → publish\UserAgentCli\
-    4. Generates WXS fragments with absolute paths + Bitness=always64:
+    4. Generates WXS fragments with WiX build-time source variables + Bitness=always64:
          HostKeyFiles.wxs     — service EXE + ServiceInstall/Control + key DLLs
          AgentKeyFiles.wxs    — UserAgent UI EXE + key files
          AgentCliKeyFiles.wxs — UserAgent CLI EXE + key files
@@ -122,6 +122,7 @@ New-Item -ItemType Directory -Path $outDir -Force | Out-Null
 function New-HarvestFragment {
     param(
         [string]   $SourceDir,
+        [string]   $SourceVariable,
         [string]   $DirectoryRefId,
         [string]   $ComponentGroupId,
         [string[]] $ExcludeFiles,
@@ -174,7 +175,7 @@ function New-HarvestFragment {
         $node.Files.Add([pscustomobject]@{
             Id = "${IdPrefix}_F_$fileIndex"
             ComponentId = "${IdPrefix}_C_$fileIndex"
-            Source = $file.FullName
+            Source = '$(var.' + $SourceVariable + ')\' + $relativePath
         })
     }
 
@@ -272,7 +273,7 @@ $agentCliKeyFiles = @(
     <ComponentGroup Id="CG_PrivilegedHost" Directory="ServiceFolder">
 
       <Component Id="C_HostExe" Guid="B1C2D3E4-F5A6-7B8C-9D0E-1F2A3B4C5D6E" Bitness="always64">
-        <File Id="HostExe" Source="$hostDir\BlueToothAutoConnect.PrivilegedHost.exe" KeyPath="yes" />
+        <File Id="HostExe" Source="`$(var.HostPublishDir)\BlueToothAutoConnect.PrivilegedHost.exe" KeyPath="yes" />
         <ServiceInstall
           Id="BtAutoConnectService"
           Name="BlueToothAutoConnectHost"
@@ -293,27 +294,27 @@ $agentCliKeyFiles = @(
       </Component>
 
       <Component Id="C_HostDll" Guid="B7C8D9E0-F1A2-B3C4-5D6E-7F8A9B0C1D2E" Bitness="always64">
-        <File Id="HostDll" Source="$hostDir\BlueToothAutoConnect.PrivilegedHost.dll" KeyPath="yes" />
+        <File Id="HostDll" Source="`$(var.HostPublishDir)\BlueToothAutoConnect.PrivilegedHost.dll" KeyPath="yes" />
       </Component>
 
       <Component Id="C_HostRuntimeConfig" Guid="C2D3E4F5-A6B7-8C9D-0E1F-2A3B4C5D6E7F" Bitness="always64">
-        <File Id="HostRuntimeConfig" Source="$hostDir\BlueToothAutoConnect.PrivilegedHost.runtimeconfig.json" KeyPath="yes" />
+        <File Id="HostRuntimeConfig" Source="`$(var.HostPublishDir)\BlueToothAutoConnect.PrivilegedHost.runtimeconfig.json" KeyPath="yes" />
       </Component>
 
       <Component Id="C_HostDepsJson" Guid="E4F5A6B7-C8D9-E0F1-2A3B-4C5D6E7F8A9B" Bitness="always64">
-        <File Id="HostDepsJson" Source="$hostDir\BlueToothAutoConnect.PrivilegedHost.deps.json" KeyPath="yes" />
+        <File Id="HostDepsJson" Source="`$(var.HostPublishDir)\BlueToothAutoConnect.PrivilegedHost.deps.json" KeyPath="yes" />
       </Component>
 
       <Component Id="C_HostAppSettings" Guid="D3E4F5A6-B7C8-9D0E-1F2A-3B4C5D6E7F8A" Bitness="always64">
-        <File Id="HostAppSettings" Source="$hostDir\appsettings.json" KeyPath="yes" />
+        <File Id="HostAppSettings" Source="`$(var.HostPublishDir)\appsettings.json" KeyPath="yes" />
       </Component>
 
       <Component Id="C_HostPersistenceDll" Guid="F5A6B7C8-D9E0-F1A2-3B4C-5D6E7F8A9B0C" Bitness="always64">
-        <File Id="HostPersistenceDll" Source="$hostDir\BlueToothAutoConnect.Persistence.dll" KeyPath="yes" />
+        <File Id="HostPersistenceDll" Source="`$(var.HostPublishDir)\BlueToothAutoConnect.Persistence.dll" KeyPath="yes" />
       </Component>
 
       <Component Id="C_HostPolicyEngineDll" Guid="A6B7C8D9-E0F1-A2B3-4C5D-6E7F8A9B0C1D" Bitness="always64">
-        <File Id="HostPolicyEngineDll" Source="$hostDir\BlueToothAutoConnect.PolicyEngine.dll" KeyPath="yes" />
+        <File Id="HostPolicyEngineDll" Source="`$(var.HostPublishDir)\BlueToothAutoConnect.PolicyEngine.dll" KeyPath="yes" />
       </Component>
 
     </ComponentGroup>
@@ -331,23 +332,23 @@ Write-Host "  $instDir\HostKeyFiles.wxs"
     <ComponentGroup Id="CG_UserAgent" Directory="UserAgentFolder">
 
       <Component Id="C_AgentExe" Guid="C8D9E0F1-A2B3-C4D5-6E7F-8A9B0C1D2E3F" Bitness="always64">
-        <File Id="AgentExe" Source="$agentDir\BlueToothAutoConnect.UserAgent.exe" KeyPath="yes" />
+        <File Id="AgentExe" Source="`$(var.AgentPublishDir)\BlueToothAutoConnect.UserAgent.exe" KeyPath="yes" />
       </Component>
 
       <Component Id="C_AgentDll" Guid="D9E0F1A2-B3C4-D5E6-7F8A-9B0C1D2E3F4A" Bitness="always64">
-        <File Id="AgentDll" Source="$agentDir\BlueToothAutoConnect.UserAgent.dll" KeyPath="yes" />
+        <File Id="AgentDll" Source="`$(var.AgentPublishDir)\BlueToothAutoConnect.UserAgent.dll" KeyPath="yes" />
       </Component>
 
       <Component Id="C_AgentRuntimeConfig" Guid="E0F1A2B3-C4D5-E6F7-8A9B-0C1D2E3F4A5B" Bitness="always64">
-        <File Id="AgentRuntimeConfig" Source="$agentDir\BlueToothAutoConnect.UserAgent.runtimeconfig.json" KeyPath="yes" />
+        <File Id="AgentRuntimeConfig" Source="`$(var.AgentPublishDir)\BlueToothAutoConnect.UserAgent.runtimeconfig.json" KeyPath="yes" />
       </Component>
 
       <Component Id="C_AgentDepsJson" Guid="F1A2B3C4-D5E6-F7A8-9B0C-1D2E3F4A5B6C" Bitness="always64">
-        <File Id="AgentDepsJson" Source="$agentDir\BlueToothAutoConnect.UserAgent.deps.json" KeyPath="yes" />
+        <File Id="AgentDepsJson" Source="`$(var.AgentPublishDir)\BlueToothAutoConnect.UserAgent.deps.json" KeyPath="yes" />
       </Component>
 
       <Component Id="C_AgentResourcesPri" Guid="A2B3C4D5-E6F7-A8B9-0C1D-2E3F4A5B6C7D" Bitness="always64">
-        <File Id="AgentResourcesPri" Source="$agentDir\BlueToothAutoConnect.UserAgent.pri" KeyPath="yes" />
+        <File Id="AgentResourcesPri" Source="`$(var.AgentPublishDir)\BlueToothAutoConnect.UserAgent.pri" KeyPath="yes" />
       </Component>
 
     </ComponentGroup>
@@ -365,19 +366,19 @@ Write-Host "  $instDir\AgentKeyFiles.wxs"
     <ComponentGroup Id="CG_UserAgentCli" Directory="UserAgentCliFolder">
 
       <Component Id="C_AgentCliExe" Guid="A1B2C3D4-E5F6-7A8B-9C0D-1E2F3A4B5C6D" Bitness="always64">
-        <File Id="AgentCliExe" Source="$agentCliDir\BlueToothAutoConnect.UserAgent.Cli.exe" KeyPath="yes" />
+        <File Id="AgentCliExe" Source="`$(var.AgentCliPublishDir)\BlueToothAutoConnect.UserAgent.Cli.exe" KeyPath="yes" />
       </Component>
 
       <Component Id="C_AgentCliDll" Guid="B2C3D4E5-F6A7-8B9C-0D1E-2F3A4B5C6D7E" Bitness="always64">
-        <File Id="AgentCliDll" Source="$agentCliDir\BlueToothAutoConnect.UserAgent.Cli.dll" KeyPath="yes" />
+        <File Id="AgentCliDll" Source="`$(var.AgentCliPublishDir)\BlueToothAutoConnect.UserAgent.Cli.dll" KeyPath="yes" />
       </Component>
 
       <Component Id="C_AgentCliRuntimeConfig" Guid="C3D4E5F6-A7B8-9C0D-1E2F-3A4B5C6D7E8F" Bitness="always64">
-        <File Id="AgentCliRuntimeConfig" Source="$agentCliDir\BlueToothAutoConnect.UserAgent.Cli.runtimeconfig.json" KeyPath="yes" />
+        <File Id="AgentCliRuntimeConfig" Source="`$(var.AgentCliPublishDir)\BlueToothAutoConnect.UserAgent.Cli.runtimeconfig.json" KeyPath="yes" />
       </Component>
 
       <Component Id="C_AgentCliDepsJson" Guid="D4E5F6A7-B89C-0D1E-2F3A-4B5C6D7E8F9A" Bitness="always64">
-        <File Id="AgentCliDepsJson" Source="$agentCliDir\BlueToothAutoConnect.UserAgent.Cli.deps.json" KeyPath="yes" />
+        <File Id="AgentCliDepsJson" Source="`$(var.AgentCliPublishDir)\BlueToothAutoConnect.UserAgent.Cli.deps.json" KeyPath="yes" />
       </Component>
 
     </ComponentGroup>
@@ -389,6 +390,7 @@ Write-Host "  $instDir\AgentCliKeyFiles.wxs"
 # 3d. Harvest fragments (runtime DLLs, all remaining files)
 New-HarvestFragment `
     -SourceDir        $hostDir `
+    -SourceVariable   "HostPublishDir" `
     -DirectoryRefId   "ServiceFolder" `
     -ComponentGroupId "CG_PrivilegedHostHarvested" `
     -ExcludeFiles     $hostKeyFiles `
@@ -397,6 +399,7 @@ New-HarvestFragment `
 
 New-HarvestFragment `
     -SourceDir        $agentDir `
+    -SourceVariable   "AgentPublishDir" `
     -DirectoryRefId   "UserAgentFolder" `
     -ComponentGroupId "CG_UserAgentHarvested" `
     -ExcludeFiles     $agentKeyFiles `
@@ -405,6 +408,7 @@ New-HarvestFragment `
 
 New-HarvestFragment `
     -SourceDir        $agentCliDir `
+    -SourceVariable   "AgentCliPublishDir" `
     -DirectoryRefId   "UserAgentCliFolder" `
     -ComponentGroupId "CG_UserAgentCliHarvested" `
     -ExcludeFiles     $agentCliKeyFiles `
@@ -419,6 +423,9 @@ Remove-Item -Recurse -Force "$instDir\bin", "$instDir\obj" -ErrorAction Silently
 dotnet build "$instDir\BlueToothAutoConnect.Installer.wixproj" `
     -c Release --no-incremental `
     /p:ProductVersion=$Version `
+    /p:HostPublishDir="$hostDir" `
+    /p:AgentPublishDir="$agentDir" `
+    /p:AgentCliPublishDir="$agentCliDir" `
     /p:OutputName="BlueToothAutoConnect-$Version-Setup"
 if ($LASTEXITCODE -ne 0) { throw "MSI build failed" }
 
