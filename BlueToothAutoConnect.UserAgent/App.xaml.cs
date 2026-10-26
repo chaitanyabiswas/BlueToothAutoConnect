@@ -7,7 +7,9 @@ using BlueToothAutoConnect_UserAgent.ViewModels;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using System.Security.Principal;
 
 namespace BlueToothAutoConnect_UserAgent;
 
@@ -16,6 +18,10 @@ public partial class App : Application
     public static IServiceProvider Services { get; private set; } = null!;
     private Window? _window;
     private static Task? _databaseInitializationTask;
+    private readonly Mutex _singleInstanceMutex;
+    private readonly EventWaitHandle _activationEvent;
+    private readonly bool _isSecondaryInstance;
+    private bool _pendingActivation;
 
     public static string? StartupError { get; private set; }
 
@@ -32,6 +38,13 @@ public partial class App : Application
     public App()
     {
         DiagnosticLog.StartSession();
+        var userSid = WindowsIdentity.GetCurrent().User?.Value
+            ?? throw new InvalidOperationException("Unable to determine the current Windows user.");
+        var instanceName = $"Local\\BlueToothAutoConnect-{userSid}";
+        _activationEvent = new EventWaitHandle(false, EventResetMode.AutoReset, $"{instanceName}-Activate");
+        _singleInstanceMutex = new Mutex(true, instanceName, out var createdNew);
+        _isSecondaryInstance = !createdNew;
+
         UnhandledException += (s, e) =>
         {
             DiagnosticLog.WriteException("WinUI Application.UnhandledException",
@@ -79,14 +92,47 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        _ = InitializeDatabaseAsync();
         var startInBackground =
             args.Arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries)
                 .Contains("--background", StringComparer.OrdinalIgnoreCase) ||
             Environment.GetCommandLineArgs()
                 .Skip(1)
                 .Contains("--background", StringComparer.OrdinalIgnoreCase);
+
+        if (_isSecondaryInstance)
+        {
+            if (!startInBackground)
+            {
+                try
+                {
+                    _activationEvent.Set();
+                }
+                catch (Exception ex)
+                {
+                    DiagnosticLog.WriteException("Requesting existing window activation", ex);
+                }
+            }
+
+            Exit();
+            return;
+        }
+
+        _ = InitializeDatabaseAsync();
+        var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+        ThreadPool.RegisterWaitForSingleObject(
+            _activationEvent,
+            (_, timedOut) =>
+            {
+                if (!timedOut && !dispatcherQueue.TryEnqueue(ActivateMainWindow))
+                    DiagnosticLog.Write("Unable to queue activation of the existing window.");
+            },
+            null,
+            Timeout.Infinite,
+            executeOnlyOnce: false);
+
         EnsureWindowCreated(startInBackground);
+        if (_pendingActivation)
+            ActivateMainWindow();
     }
 
     public static Task InitializeDatabaseAsync()
@@ -157,6 +203,19 @@ public partial class App : Application
                 DiagnosticLog.WriteException("Main window creation", ex);
             }
 
+        }
+    }
+
+    private void ActivateMainWindow()
+    {
+        if (_window is MainWindow mainWindow)
+        {
+            _pendingActivation = false;
+            mainWindow.RestoreAndActivate();
+        }
+        else
+        {
+            _pendingActivation = true;
         }
     }
 }

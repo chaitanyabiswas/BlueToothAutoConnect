@@ -83,6 +83,11 @@ public sealed partial class MainWindow : Window
 
     private void RestoreFromTray()
     {
+        RestoreAndActivate();
+    }
+
+    internal void RestoreAndActivate()
+    {
         if (AppWindow.Presenter is OverlappedPresenter presenter &&
             presenter.State == OverlappedPresenterState.Minimized)
             presenter.Restore();
